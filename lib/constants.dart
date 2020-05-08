@@ -20,8 +20,8 @@ const kMessageTextFieldDecoration = InputDecoration(
   hintStyle: kFormHintStyle,
 );
 const kMessageContainerDecoration = BoxDecoration(
-  color: Colors.blue,
+  color: Colors.white,
   border: Border(
-    top: BorderSide(color: Colors.white, width: 1.0),
+
   ),
 );

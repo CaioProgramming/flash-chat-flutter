@@ -57,7 +57,25 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         print(animation.value);
       });
     });*/
-    checkUser();
+    fetchUser();
+
+  }
+
+  void fetchUser() async {
+    loggedUser = await checkUser();
+    setState(() {
+      loading = false;
+      if (loggedUser != null) {
+        startChat();
+      }
+    });
+  }
+
+  void startChat() {
+    Timer(Duration(seconds: 4), () {
+      Navigator.pushNamed(
+          context,ChatScreen.id,arguments: {'user': loggedUser});
+    });
   }
 
   @override
@@ -66,30 +84,25 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     super.dispose();
   }
 
-  void checkUser() async {
-    loggedUser = await _auth.currentUser();
-    print(loggedUser);
-    setState(() {
-      loading = false;
-    });
+  Future<FirebaseUser> checkUser() async {
+    FirebaseUser currentUser = await _auth.currentUser();
+    print('User -> $currentUser');
+    return currentUser;
   }
 
   Future signInWithGoogle() async {
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     final GoogleSignInAuthentication googleSignInAuthentication =
-        await googleSignInAccount.authentication;
+    await googleSignInAccount.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.getCredential(
       accessToken: googleSignInAuthentication.accessToken,
       idToken: googleSignInAuthentication.idToken,
     );
-
     final AuthResult authResult = await _auth.signInWithCredential(credential);
     final FirebaseUser user = authResult.user;
-
     assert(!user.isAnonymous);
     assert(await user.getIdToken() != null);
-    assert(await user.email != null);
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
     setState(() {
@@ -129,20 +142,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ],
             ),
             Visibility(
-              visible: loggedUser != null,
-              child: Center(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.pushNamed(context, ChatScreen.id);
-                  },
-                  child: Text(
-                    'Começar'.toUpperCase(),
-                    style: TextStyle(color: Colors.blue),
-                  ),
-                ),
-              ),
-            ),
-            Visibility(
                 visible: loading && loggedUser == null,
                 child: CircularProgressIndicator()),
             Visibility(
@@ -152,7 +151,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   RoundIconButton(
                       onClick: () {
                         signInWithGoogle().whenComplete(() {
-                          Navigator.pushNamed(context, ChatScreen.id);
+                          startChat();
                         });
                       },
                       elevation: 3,
