@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "162185950425",
+    "firebase_url": "https://flashchat-flutter-inlustris.firebaseio.com",
+    "project_id": "flashchat-flutter-inlustris",
+    "storage_bucket": "flashchat-flutter-inlustris.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:162185950425:android:d11c12e12563164d117ac8",
+        "android_client_info": {
+          "package_name": "com.inlustris.flash_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "162185950425-imntptknmjbr5oksuccn8h2eqir910n9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.inlustris.flash_chat",
+            "certificate_hash": "7079f2e50adb51d3144acf654427b19b72193d6c"
+          }
+        },
+        {
+          "client_id": "162185950425-tqoc8jc71k90nu2is63k4551niee45qb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPgvK2nE44aWTYV-TPl2XH-ieHzldNm38"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "162185950425-tqoc8jc71k90nu2is63k4551niee45qb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

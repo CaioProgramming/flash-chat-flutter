@@ -1,11 +1,102 @@
+import 'dart:async';
+
+import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flash_chat/components/RoundIconButton.dart';
+import 'package:flash_chat/components/RoundedButton.dart';
+import 'package:flash_chat/constants.dart';
+import 'package:flash_chat/screens/chat_screen.dart';
+import 'package:flash_chat/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_icons/flutter_icons.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:modal_progress_hud/modal_progress_hud.dart';
+
+import 'login_screen.dart';
+
+final _auth = FirebaseAuth.instance;
+final GoogleSignIn googleSignIn = GoogleSignIn();
+
+FirebaseUser loggedUser;
 
 class WelcomeScreen extends StatefulWidget {
+  static const String id = 'Welcome_screen';
   @override
   _WelcomeScreenState createState() => _WelcomeScreenState();
 }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with SingleTickerProviderStateMixin {
+  AnimationController controller;
+  bool loading = true;
+
+  Animation animation;
+
+  @override
+  void initState() {
+    super.initState();
+    controller =
+        AnimationController(duration: Duration(seconds: 1), vsync: this);
+    //Tween color animation!
+    /*animation =
+        ColorTween(begin: Colors.blue, end: Colors.white).animate(controller);*/
+
+    //controller.forward();
+
+    //Loop Animation!
+    /*animation.addStatusListener((status){
+      if(status == AnimationStatus.completed){
+        controller.reverse(from: 1.0);
+      }else if(status == AnimationStatus.dismissed) {
+        controller.forward();
+      }
+    });*/
+
+    /*controller.addListener(() {
+      setState(() {
+        print(animation.value);
+      });
+    });*/
+    checkUser();
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  void checkUser() async {
+    loggedUser = await _auth.currentUser();
+    print(loggedUser);
+    setState(() {
+      loading = false;
+    });
+  }
+
+  Future signInWithGoogle() async {
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    final FirebaseUser user = authResult.user;
+
+    assert(!user.isAnonymous);
+    assert(await user.getIdToken() != null);
+    assert(await user.email != null);
+    final FirebaseUser currentUser = await _auth.currentUser();
+    assert(user.uid == currentUser.uid);
+    setState(() {
+      loading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -18,56 +109,71 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                Container(
-                  child: Image.asset('images/logo.png'),
-                  height: 60.0,
-                ),
-                Text(
-                  'Flash Chat',
-                  style: TextStyle(
-                    fontSize: 45.0,
-                    fontWeight: FontWeight.w900,
+                Flexible(
+                  child: Hero(
+                    tag: kLogoTag,
+                    child: Container(
+                      child: Image.asset('images/logo.png'),
+                      height: 60,
+                    ),
                   ),
+                ),
+                TyperAnimatedTextKit(
+                  displayFullTextOnTap: true,
+                  text: ['Flash Chat'],
+                  textStyle: TextStyle(
+                      fontSize: 45.0,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.black),
                 ),
               ],
             ),
-            SizedBox(
-              height: 48.0,
-            ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                elevation: 5.0,
-                color: Colors.lightBlueAccent,
-                borderRadius: BorderRadius.circular(30.0),
-                child: MaterialButton(
-                  onPressed: () {
-                    //Go to login screen.
+            Visibility(
+              visible: loggedUser != null,
+              child: Center(
+                child: GestureDetector(
+                  onTap: () {
+                    Navigator.pushNamed(context, ChatScreen.id);
                   },
-                  minWidth: 200.0,
-                  height: 42.0,
                   child: Text(
-                    'Log In',
+                    'Começar'.toUpperCase(),
+                    style: TextStyle(color: Colors.blue),
                   ),
                 ),
               ),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: 16.0),
-              child: Material(
-                color: Colors.blueAccent,
-                borderRadius: BorderRadius.circular(30.0),
-                elevation: 5.0,
-                child: MaterialButton(
-                  onPressed: () {
-                    //Go to registration screen.
-                  },
-                  minWidth: 200.0,
-                  height: 42.0,
-                  child: Text(
-                    'Register',
+            Visibility(
+                visible: loading && loggedUser == null,
+                child: CircularProgressIndicator()),
+            Visibility(
+              visible: !loading && loggedUser == null,
+              child: Column(
+                children: <Widget>[
+                  RoundIconButton(
+                      onClick: () {
+                        signInWithGoogle().whenComplete(() {
+                          Navigator.pushNamed(context, ChatScreen.id);
+                        });
+                      },
+                      elevation: 3,
+                      color: Colors.blueAccent,
+                      iconcolor: Colors.white,icon: FontAwesome5Brands.google),
+/*
+                  RoundedButton(
+                    color: Colors.lightBlueAccent,
+                    text: 'Login',
+                    onPress: () {
+                      Navigator.pushNamed(context, LoginScreen.id);
+                    },
                   ),
-                ),
+                  RoundedButton(
+                    color: Colors.blueAccent,
+                    text: 'Register',
+                    onPress: () {
+                      Navigator.pushNamed(context, RegistrationScreen.id);
+                    },
+                  ),*/
+                ],
               ),
             ),
           ],
