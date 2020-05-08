@@ -7,7 +7,6 @@ class Message {
   bool istheSender() => currentUserUID == senderUID;
 
   Map<String, dynamic> toMap() {
-
     return {
       'text': text,
       'senderUID': senderUID,
@@ -30,21 +29,17 @@ class Message {
         id: key,
         currentUserUID: uid);
   }
-  Message(
-      {this.text,
-      this.id,
-      this.sender,
-      this.data,
-      this.senderUID,
-      this.currentUserUID}) {
-    print(
-        'Message/$id{\nmessage:$text\nsender($senderUID):$sender\ncurrentUser:$currentUserUID\ndata:$data\n}');
+
+
+
+  String hour ()  {
+    DateTime date = data.toDate();
+    if(date.minute == 0){
+      return '${date.hour}h';
+    }
+    return '${date.hour}:${date.minute}';
   }
 
-  Message.sender({@required  this.text, @required this.sender, @required this.senderUID, @required this.data}){
-    print(
-        'Message:\nmessage:$text\nsender($senderUID):$sender\ncurrentUser:$currentUserUID\ndata:$data');
-  }
 
   bool emptyMessage() {
     return this.id.isEmpty &&
@@ -53,6 +48,25 @@ class Message {
         this.sender.isEmpty;
   }
 
+  Message(
+      {this.text,
+        this.id,
+        this.sender,
+        this.data,
+        this.senderUID,
+        this.currentUserUID}) {
+    print(
+        'Message/$id{\nmessage:$text\nsender($senderUID):$sender\ncurrentUser:$currentUserUID\ndata:$data\n}');
+  }
+
+  Message.sender(
+      {@required this.text,
+        @required this.sender,
+        @required this.senderUID,
+        @required this.data}) {
+    print(
+        'Message:\nmessage:$text\nsender($senderUID):$sender\ncurrentUser:$currentUserUID\ndata:$data');
+  }
   static Message noMessages() {
     return Message(
         text: 'There\'s no messages.',
@@ -62,6 +76,4 @@ class Message {
         id: '',
         senderUID: '');
   }
-
-
 }

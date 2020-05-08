@@ -9,6 +9,7 @@ import 'package:flash_chat/screens/chat_screen.dart';
 import 'package:flash_chat/screens/registration_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_icons/flutter_icons.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 
@@ -17,7 +18,6 @@ import 'login_screen.dart';
 final _auth = FirebaseAuth.instance;
 final GoogleSignIn googleSignIn = GoogleSignIn();
 
-FirebaseUser loggedUser;
 
 class WelcomeScreen extends StatefulWidget {
   static const String id = 'Welcome_screen';
@@ -27,9 +27,9 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen>
     with SingleTickerProviderStateMixin {
+  FirebaseUser loggedUser;
   AnimationController controller;
   bool loading = true;
-
   Animation animation;
 
   @override
@@ -40,7 +40,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     //Tween color animation!
     /*animation =
         ColorTween(begin: Colors.blue, end: Colors.white).animate(controller);*/
-
     //controller.forward();
 
     //Loop Animation!
@@ -51,13 +50,18 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         controller.forward();
       }
     });*/
-
     /*controller.addListener(() {
       setState(() {
         print(animation.value);
       });
     });*/
-    fetchUser();
+
+    if (loggedUser == null) {
+      setState(() {
+        loading = true;
+      });
+      fetchUser();
+    }
 
   }
 
@@ -71,11 +75,17 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     });
   }
 
-  void startChat() {
-    Timer(Duration(seconds: 4), () {
-      Navigator.pushNamed(
+  void startChat() async{
+    var currentUser = await Navigator.pushNamed(
           context,ChatScreen.id,arguments: {'user': loggedUser});
-    });
+     if(currentUser == null){
+       setState(() {
+         loading = true;
+         loggedUser = null;
+       });
+     }else{
+       fetchUser();
+     }
   }
 
   @override
@@ -143,7 +153,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             ),
             Visibility(
                 visible: loading && loggedUser == null,
-                child: CircularProgressIndicator()),
+                child: SpinKitWave(color: Colors.blue,size: 24,)),
             Visibility(
               visible: !loading && loggedUser == null,
               child: Column(

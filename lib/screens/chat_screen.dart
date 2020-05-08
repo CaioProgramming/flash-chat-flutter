@@ -64,7 +64,7 @@ class _ChatScreenState extends State<ChatScreen> with SingleTickerProviderStateM
               icon: Icon(Icons.close,color: Colors.black,),
               onPressed: () {
                 _auth.signOut();
-                Navigator.pop(context);
+                Navigator.pop(context,loggedUser);
               }),
         ],
         centerTitle: true,
